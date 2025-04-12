@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>《大画教学》新书发布</title>
+    <title>《大画教学》在线阅读</title>
     <style>
         * {
             box-sizing: border-box;
@@ -22,6 +22,7 @@
             margin: 0 auto;
             padding: 20px;
             gap: 20px;
+            min-height: 100vh;
         }
 
         .sidebar {
@@ -38,6 +39,7 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .book-cover {
@@ -58,6 +60,7 @@
             border-radius: 6px;
             transition: all 0.3s;
             cursor: pointer;
+            border: 1px solid #eee;
         }
 
         .chapter-item:hover {
@@ -71,10 +74,40 @@
             color: #2c3e50;
         }
 
-        .upload-section {
-            margin-top: 30px;
-            border-top: 2px dashed #eee;
-            padding-top: 20px;
+        #pdfViewer {
+            width: 100%;
+            min-height: 600px;
+            margin-top: 20px;
+        }
+
+        .pdf-controls {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .page-navigation {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .current-page {
+            display: inline-block;
+            margin: 0 15px;
+            min-width: 80px;
+        }
+
+        .reading-mode .promo-section {
+            display: none;
+        }
+
+        .reading-mode #pdfViewer {
+            margin-top: 0;
         }
 
         @media (max-width: 768px) {
@@ -93,89 +126,112 @@
         <div class="sidebar">
             <h2>章节导航</h2>
             <ul class="chapter-list">
-                <li class="chapter-item" data-chapter="1">第一章：课程大纲写作要素解决方案</li>
-                <li class="chapter-item" data-chapter="2">第二章：多元课程目标构建指南</li>
-                <li class="chapter-item" data-chapter="3">第三章：创新课程评价策略大全</li>
-                <li class="chapter-item" data-chapter="4">第四章：大班教学参与式设计手册</li>
-                <li class="chapter-item" data-chapter="5">第五章：课程思政融合专业教学指南</li>
-                <li class="chapter-item" data-chapter="6">第六章：学期全景教学解决方案</li>
+                <li class="chapter-item" data-file="chapters/大画教学之一 课程大纲.pdf">第一章：课程大纲写作要素解决方案</li>
+                <li class="chapter-item" data-file="chapters/chapter-2.pdf">第二章：多元课程目标构建指南</li>
+                <li class="chapter-item" data-file="chapters/chapter-3.pdf">第三章：创新课程评价策略大全</li>
+                <li class="chapter-item" data-file="chapters/chapter-4.pdf">第四章：大班教学参与式设计手册</li>
+                <li class="chapter-item" data-file="chapters/chapter-5.pdf">第五章：课程思政融合专业教学指南</li>
+                <li class="chapter-item" data-file="chapters/chapter-6.pdf">第六章：学期全景教学解决方案</li>
             </ul>
-
-            <div class="upload-section">
-                <h3>上传章节PDF</h3>
-                <input type="file" accept=".pdf" id="pdfUpload">
-            </div>
         </div>
 
         <!-- 主内容区 -->
-        <div class="main-content">
-            <h1 class="promo-text">《大画教学》<br>
-                <small>The Arts of Teaching:<br>A Visual Approach to Pedagogy</small>
-            </h1>
-            
-            <img src="book-cover.jpg" alt="大画教学封面" class="book-cover">
+        <div class="main-content" id="mainContent">
+            <div class="promo-section">
+                <h1 class="promo-text">《大画教学》<br>
+                    <small>The Arts of Teaching:<br>A Visual Approach to Pedagogy</small>
+                </h1>
+                
+                <img src="book-cover.jpg" alt="大画教学封面" class="book-cover">
 
-            <div class="promo-text">
-                <p>🌶️ 青椒老椒必读宝典 | 🎨 教学痛点可视化解决方案 | 📚 一册在手教学无忧</p>
-                <p>从菜鸟教师到教学大咖，<br>从照本宣科到课堂魔术师，<br>这本可视化教学指南帮你：</p>
-                <p>🚀 突破传统教学框架<br>
-                   🧩 解决六大核心痛点<br>
-                   💡 解锁30+创新策略<br>
-                   🎯 构建完整教学闭环</p>
-                <p>这不是一本普通的教材，<br>而是每位教师的"教学急救箱"<br>和"课堂创意工坊"！</p>
+                <div class="promo-text">
+                    <p>🌶️ 青椒老椒必读宝典 | 🎨 教学痛点可视化解决方案 | 📚 一册在手教学无忧</p>
+                    <p>从菜鸟教师到教学大咖，<br>从照本宣科到课堂魔术师，<br>这本可视化教学指南帮你：</p>
+                    <p>🚀 突破传统教学框架<br>
+                       🧩 解决六大核心痛点<br>
+                       💡 解锁30+创新策略<br>
+                       🎯 构建完整教学闭环</p>
+                    <p>这不是一本普通的教材，<br>而是每位教师的"教学急救箱"<br>和"课堂创意工坊"！</p>
+                </div>
             </div>
 
             <!-- PDF阅读器容器 -->
-            <div id="pdfViewer" style="width:100%; height:600px; margin-top:30px;"></div>
+            <div id="pdfViewer"></div>
+            <div class="pdf-controls">
+                <button class="page-navigation" id="prevPage">上一页</button>
+                <span class="current-page" id="currentPage">第1页</span>
+                <button class="page-navigation" id="nextPage">下一页</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>
     <script>
-        // PDF阅读器初始化
-        const viewer = document.getElementById('pdfViewer');
-        
-        // 章节导航点击事件
+        let currentPDF = null;
+        let currentPageNum = 1;
+        let totalPages = 1;
+
+        // 章节点击事件
         document.querySelectorAll('.chapter-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const chapter = item.dataset.chapter;
-                loadPDF(`chapter-${chapter}.pdf`);
+            item.addEventListener('click', async () => {
+                const pdfFile = item.dataset.file;
+                document.getElementById('mainContent').classList.add('reading-mode');
+                document.querySelector('.pdf-controls').style.display = 'block';
+                await loadPDF(pdfFile);
             });
         });
 
-        // 文件上传处理
-        document.getElementById('pdfUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    loadPDF(e.target.result);
-                };
-                reader.readAsDataURL(file);
+        // 翻页控制
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if(currentPageNum > 1) {
+                currentPageNum--;
+                renderPage(currentPageNum);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if(currentPageNum < totalPages) {
+                currentPageNum++;
+                renderPage(currentPageNum);
             }
         });
 
         // PDF加载函数
-        function loadPDF(url) {
-            pdfjsLib.getDocument(url).promise.then(pdf => {
-                pdf.getPage(1).then(page => {
-                    const scale = 1.5;
-                    const viewport = page.getViewport({ scale });
-                    
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
+        async function loadPDF(url) {
+            try {
+                const loadingTask = pdfjsLib.getDocument(url);
+                currentPDF = await loadingTask.promise;
+                totalPages = currentPDF.numPages;
+                currentPageNum = 1;
+                renderPage(currentPageNum);
+            } catch(err) {
+                console.error('PDF加载失败:', err);
+            }
+        }
 
-                    viewer.innerHTML = '';
-                    viewer.appendChild(canvas);
+        // 渲染指定页面
+        async function renderPage(pageNum) {
+            if(!currentPDF) return;
 
-                    page.render({
-                        canvasContext: context,
-                        viewport: viewport
-                    });
-                });
-            });
+            const page = await currentPDF.getPage(pageNum);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+            
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+
+            document.getElementById('pdfViewer').innerHTML = '';
+            document.getElementById('pdfViewer').appendChild(canvas);
+            
+            await page.render(renderContext).promise;
+            document.getElementById('currentPage').textContent = `第${pageNum}页`;
         }
     </script>
 </body>
