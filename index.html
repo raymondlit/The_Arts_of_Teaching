@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能分组抽选工具</title>
+    <style>
+        :root {
+            --bg-color: #e8f5e9;
+            --text-color: #2e7d32;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            padding: 20px;
+            gap: 20px;
+            box-sizing: border-box;
+        }
+
+        .input-area {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        textarea {
+            height: 300px;
+            padding: 10px;
+            border: 2px solid #81c784;
+            border-radius: 8px;
+            resize: none;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .blackboard {
+            flex: 1;
+            min-height: 400px;
+            background-color: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #name-display {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #81c784;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #66bb6a;
+        }
+
+        .config-area {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #81c784;
+            border-radius: 4px;
+        }
+
+        .groups-container {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .group-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .group-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-area">
+            <textarea id="name-list" 
+                      placeholder="请粘贴名单（每行一个姓名）或上传TXT文件"></textarea>
+            
+            <div class="file-input">
+                <input type="file" id="file-upload" accept=".txt">
+                <button>上传TXT文件</button>
+            </div>
+            
+            <div>
+                <label>分组数量：</label>
+                <input type="number" id="group-count" min="1" value="3">
+                <button onclick="createGroups()">创建分组</button>
+            </div>
+            
+            <button onclick="selectTeacher()">随机抽选</button>
+        </div>
+
+        <div class="blackboard">
+            <div id="name-display">准备就绪</div>
+            <div id="groups-display" class="groups-container"></div>
+        </div>
+    </div>
+
+    <div class="config-area">
+        <div class="config-item">
+            <label>背景色：</label>
+            <input type="color" id="bg-color" value="#e8f5e9">
+        </div>
+        <div class="config-item">
+            <label>文字色：</label>
+            <input type="color" id="text-color" value="#2e7d32">
+        </div>
+    </div>
+
+    <script>
+        // 颜色配置
+        const bgColorPicker = document.getElementById('bg-color');
+        const textColorPicker = document.getElementById('text-color');
+
+        bgColorPicker.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--bg-color', e.target.value);
+        });
+
+        textColorPicker.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--text-color', e.target.value);
+        });
+
+        // 名单管理
+        let teachers = [];
+        
+        document.getElementById('name-list').addEventListener('input', function(e) {
+            updateTeachers(e.target.value);
+        });
+
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateTeachers(e.target.result);
+                    document.getElementById('name-list').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function updateTeachers(content) {
+            teachers = content
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
+        }
+
+        // 随机抽选
+        function selectTeacher() {
+            if (teachers.length === 0) {
+                alert('请先输入或上传名单');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * teachers.length);
+            const nameDisplay = document.getElementById('name-display');
+            
+            nameDisplay.style.animation = 'none';
+            void nameDisplay.offsetWidth;
+            nameDisplay.style.animation = 'fadeIn 0.5s';
+            
+            nameDisplay.textContent = teachers[randomIndex];
+        }
+
+        // 分组功能
+        function createGroups() {
+            const groupCount = parseInt(document.getElementById('group-count').value) || 3;
+            if (groupCount < 1) {
+                alert('分组数量至少为1');
+                return;
+            }
+
+            const shuffled = [...teachers].sort(() => Math.random() - 0.5);
+            const groups = Array.from({length: groupCount}, () => []);
+            
+            shuffled.forEach((name, index) => {
+                groups[index % groupCount].push(name);
+            });
+
+            displayGroups(groups);
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groups-display');
+            container.innerHTML = groups.map((group, index) => `
+                <div class="group-box">
+                    <div class="group-title">第 ${index + 1} 组（${group.length}人）</div>
+                    <div>${group.join('<br>')}</div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
